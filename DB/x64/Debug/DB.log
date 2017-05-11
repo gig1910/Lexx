@@ -1,0 +1,5 @@
+﻿  stdafx.cpp
+  DB.cpp
+c:\project\лексу\db1\db\datalist.h(86): warning C4101: e: неиспользованная локальная переменная
+  DB.vcxproj -> C:\Project\Лексу\db1\x64\Debug\DB.exe
+  DB.vcxproj -> C:\Project\Лексу\db1\x64\Debug\DB.pdb (Full PDB)

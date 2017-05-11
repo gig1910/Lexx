@@ -10,3 +10,7 @@ typedef struct QueryList {
 	byte condition = 0;
 	QueryList *next;
 } QueryList;
+
+DataList *query(QueryList *query) {
+
+}

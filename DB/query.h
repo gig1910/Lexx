@@ -12,5 +12,5 @@ typedef struct QueryList {
 } QueryList;
 
 DataList *query(QueryList *query) {
-
+	return NULL;
 }

@@ -43,17 +43,17 @@ int main()
 
 	initDB();
 
-	DataList *d = dataList;
-	while (d != NULL) {
-		putData(((Data*)d->data));
-		d = d->next;
+	DataList *dl = dataList;
+	while (dl != NULL) {
+		putData(((Data*)dl->data));
+		dl = dl->next;
 	}
 	clearDataList(dataList, false);
 
 	Data *query = (Data*)calloc(1, sizeof(Data));
 	query->firstName = "Алексей";
 	printDataList(queryData(query));
-	printf("--------------------------------------");
+	printf("--------------------------------------\n");
 	scanf("%s", end_ptr);
 
 	clearDB();

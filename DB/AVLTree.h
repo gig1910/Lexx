@@ -5,9 +5,9 @@
 typedef struct AVLTreeNode {
 	int key;
 	unsigned char height = 1;
-	AVLTreeNode *left = NULL;
-	AVLTreeNode *right = NULL;
-	DataList *data;
+	struct AVLTreeNode *left = NULL;
+	struct AVLTreeNode *right = NULL;
+	struct DataList *data;
 } AVLTreeNode;
 
 unsigned char height(AVLTreeNode *p)
@@ -89,6 +89,14 @@ AVLTreeNode *insert(AVLTreeNode *p, int k, void *data) // вставка ключа k в дере
 	return balance(p);
 }
 
+AVLTreeNode *find(AVLTreeNode *p, int k) {
+	AVLTreeNode *node = p;
+	while (p != NULL && p->key != k) {
+		p = p->key < k ? p->left : p->right;
+	}
+	return p;
+}
+
 AVLTreeNode *insertDataToAVLTree(AVLTreeNode *root, int k, void *data) {
 	AVLTreeNode *p = find(root, k);
 	if (p == NULL) {
@@ -98,14 +106,6 @@ AVLTreeNode *insertDataToAVLTree(AVLTreeNode *root, int k, void *data) {
 		putInDataList(p->data, data);
 		return root;
 	}
-}
-
-AVLTreeNode *find(AVLTreeNode *p, int k) {
-	AVLTreeNode *node = p;
-	while (p != NULL && p->key != k) {
-		p = p->key < k ? p->left : p->right;
-	}
-	return p;
 }
 
 AVLTreeNode *findMin(AVLTreeNode *p) // поиск узла с минимальным ключом в дереве p 
@@ -119,16 +119,6 @@ AVLTreeNode *removeMin(AVLTreeNode *p) // удаление узла с минимальным ключом из 
 		return p->right;
 	p->left = removeMin(p->left);
 	return balance(p);
-}
-
-void removeDataFromAVLTree(AVLTreeNode *root, int k, void *data) {
-	AVLTreeNode *node = find(root, k);
-	if (node != NULL) {
-		node->data = removeDataFromDataList(node->data, data);
-		if (node->data == NULL) {
-			root = remove(root, k);
-		}
-	}
 }
 
 AVLTreeNode *remove(AVLTreeNode *p, int k) // удаление ключа k из дерева p
@@ -153,10 +143,26 @@ AVLTreeNode *remove(AVLTreeNode *p, int k) // удаление ключа k из дерева p
 	return balance(p);
 }
 
+void removeDataFromAVLTree(AVLTreeNode *root, int k, void *data) {
+	AVLTreeNode *node = find(root, k);
+	if (node != NULL) {
+		node->data = removeDataFromDataList(node->data, data);
+		if (node->data == NULL) {
+			root = remove(root, k);
+		}
+	}
+}
+
 void freeAVLTreeNode(AVLTreeNode *root) {
 	if (root != NULL) {
 		freeAVLTreeNode(root->left);
+		root->left = NULL;
 		freeAVLTreeNode(root->right);
+		root->right = NULL;
+		
+		clearDataList(root->data, NULL);
+		root->data = NULL;
+
 		free(root);
 	}
 }

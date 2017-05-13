@@ -6,9 +6,10 @@
 
 typedef unsigned char byte;
 typedef struct Data {
-	char *firstName;
-	char *middleName;
-	char *lastName;
+	char *firstName = NULL;
+	char *middleName = NULL;
+	char *lastName = NULL;
+
 	bool sex;
 	byte age;
 	byte weight;
@@ -57,6 +58,7 @@ void putData(Data *data) {
 	putStrDataInTree(firstNameRoot, data->firstName, data);
 	putStrDataInTree(middleNameRoot, data->middleName, data);
 	putStrDataInTree(lastNameRoot, data->lastName, data);
+
 	ageRoot = insertDataToAVLTree(ageRoot, data->age, data);
 	weightRoot = insertDataToAVLTree(weightRoot, data->weight, data);
 }
@@ -81,15 +83,37 @@ DataList *queryData(Data *data) {
 	return result;
 }
 
+void fillChar(char *word) {
+	if (word != NULL) {
+		for (size_t i = 0; i < strlen(word); i++) {
+			word[i] = '*';
+		}
+	}
+}
+
+char *freeAndNULLStr(char *str) {
+	if (str != NULL) {
+		fillChar(str);
+		free(str);
+	}
+	return NULL;
+}
+
 void removeData(Data *data) {
-	void *data = findDataInDataList(dataListRoot, data);
+	findDataInDataList(dataListRoot, data);
 	if (data != NULL) {
 		removeDataInStrTree(firstNameRoot, data->firstName, data);
 		removeDataInStrTree(middleNameRoot, data->middleName, data);
 		removeDataInStrTree(lastNameRoot, data->lastName, data);
+
 		removeDataFromAVLTree(ageRoot, data->age, data);
 		removeDataFromAVLTree(weightRoot, data->weight, data);
+
 		dataListRoot = removeDataFromDataList(dataListRoot, data);
+
+		data->firstName = freeAndNULLStr(data->firstName);
+		data->middleName = freeAndNULLStr(data->middleName);
+		data->lastName = freeAndNULLStr(data->lastName);
 		free(data);
 	}
 }
@@ -104,14 +128,13 @@ void initDB() {
 
 void dataFreeFunc(void *data) {
 	if (data != NULL) {
-		free(((Data*)data)->firstName);
-		((Data*)data)->firstName = NULL;
-		free(((Data*)data)->middleName);
-		((Data*)data)->middleName = NULL;
-		free(((Data*)data)->lastName);
-		((Data*)data)->lastName = NULL;
-		free(((Data*)data));
-		data = NULL;
+		Data *d = (Data*)data;
+		//d->firstName = freeAndNULLStr(d->firstName);
+		//d->middleName = freeAndNULLStr(d->middleName);;
+		//d->lastName = freeAndNULLStr(d->lastName);;
+
+		free(d);
+		d = NULL;
 	}
 }
 
@@ -119,15 +142,15 @@ void clearDB() {
 	freeStrTree(firstNameRoot); firstNameRoot = NULL;
 	freeStrTree(middleNameRoot); middleNameRoot = NULL;
 	freeStrTree(lastNameRoot); lastNameRoot = NULL;
-	freeAVLTreeNode(ageRoot);
-	freeAVLTreeNode(weightRoot);
+	freeAVLTreeNode(ageRoot); ageRoot = NULL;
+	freeAVLTreeNode(weightRoot); weightRoot = NULL;
 
 	clearDataList(dataListRoot, dataFreeFunc); dataListRoot = NULL; dataListLast = NULL;
 }
 
 void printData(Data *data) {
 	if (data != NULL) {
-		printf("%s\t%s\t%s\t%d\t%d\t%d\t%d\n", data->firstName, data->middleName, data->lastName, data->sex, data->age, data->weight, data->group);
+		printf("%20s\t%20s\t%30s\t%1d\t%3d\t%3d\t%2d\n", data->firstName, data->middleName, data->lastName, data->sex, data->age, data->weight, data->group);
 	}
 }
 

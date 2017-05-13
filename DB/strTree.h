@@ -4,23 +4,23 @@
 #include "ctype.h"
 
 /**
+* Структура ноду строкового дерева поиска
+*/
+typedef struct StrTreeNode {
+	struct LetterList *letters = NULL;		//Список довтупный букв для перехода
+	struct DataList *data = NULL;			//Указатель на связанный список данных
+	struct DataList *lastData = NULL;		//Указатель на последнюю запись списка данных (для ускорения вставки)
+} StrTreeNode;
+
+/**
  * Структура хранения буквы для строкового дерева поиска
  * @struct
  */
 typedef struct LetterList {
 	char letter = NULL;				//Буква
-	StrTreeNode *node = NULL;		//Указатель на ноду дерева (вниз)
-	LetterList *next = NULL;		//Переход к следующей букве (вправо)
+	struct StrTreeNode *node = NULL;		//Указатель на ноду дерева (вниз)
+	struct LetterList *next = NULL;		//Переход к следующей букве (вправо)
 } LetterList;
-
-/**
- * Структура ноду строкового дерева поиска
- */
-typedef struct StrTreeNode {
-	LetterList *letters = NULL;		//Список довтупный букв для перехода
-	DataList *data = NULL;			//Указатель на связанный список данных
-	DataList *lastData = NULL;		//Указатель на последнюю запись списка данных (для ускорения вставки)
-} StrTreeNode;
 
 /**
  * Функция добавления данных к дереву
@@ -110,8 +110,11 @@ DataList *findInStrTree(StrTreeNode *root, char *word) {
  */
 void freeStrTree(StrTreeNode * root) {
 	if (root != NULL) {
+		clearDataList(root->data, NULL);
+		root->data = NULL;
+		root->lastData = NULL;
+
 		while (root->letters != NULL) {
-			clearDataList(root->data, NULL);
 			freeStrTree(root->letters->node);
 
 			LetterList *tmpL = root->letters;
@@ -122,9 +125,6 @@ void freeStrTree(StrTreeNode * root) {
 			free(tmpL);
 		}
 
-		root->data = NULL;
-		root->lastData = NULL;
-		root->letters = NULL;
 		free(root);
 	}
 }

@@ -34,7 +34,6 @@ DataList *removeDataFromDataList(DataList *root, void *data) {
 					node->next = NULL;
 					node->data = NULL;
 					free(node);
-					node = NULL;
 
 					node = prev->next;
 				}
@@ -44,7 +43,6 @@ DataList *removeDataFromDataList(DataList *root, void *data) {
 					node->next = NULL;
 					node->data = NULL;
 					free(node);
-					node = NULL;
 
 					node = root;
 				}
@@ -78,13 +76,11 @@ void clearDataList(DataList *dataList, DataFreeFunc func) {
 		}
 		tmp->data = NULL;
 
-		DataList *t = tmp;
-		tmp = tmp->next;
+		DataList *t = tmp->next;
+		tmp->next = NULL;
+		free(tmp);
 
-		t->next = NULL;
-		try { free(t); }
-		catch (_exception e) {}
-		t = NULL;
+		tmp = t;
 	}
 }
 

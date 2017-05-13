@@ -19,14 +19,18 @@ int manNamesCount = 0;
 int womanNamesCount = 0;
 int lastNamesCount = 0;
 
+char *strConcat(char *dest, const char *source) {
+	dest = (char*)realloc(dest, (strlen(dest) + strlen(source) + 1) * sizeof(char));
+	return strcat(dest, source);;
+}
+
 char *left(char *word, size_t i) {
 	size_t j = strlen(word);
 	j = i < j ? i : j;
 	char *res = NULL;
 	if (j > 0) {
 		res = (char*)calloc(j + 1, sizeof(char));
-		memcpy(res, word, j);
-		res[j + 1] = 0;
+		strncpy(res, word, j);
 	}
 
 	return res;
@@ -37,8 +41,8 @@ char *right(char *word, size_t i) {
 	size_t k = i < j ? j - i : 0;
 	char *res = NULL;
 	if (j > 0) {
-		res = (char*)calloc(k + 1, sizeof(char));
-		memcpy(res, &word[k], k + 1);
+		res = (char*)calloc(j - k + 1, sizeof(char));
+		strcpy(res, &word[k]);
 	}
 
 	return res;
@@ -70,10 +74,8 @@ StrList *readStrListFromFile(char *fileName, bool getUd) {
 				tmp->ud = getUd ? ud == 1 : false;
 			}
 
-			free(str);
-			str = NULL;
+			str = freeAndNULLStr(str);
 			fclose(f);
-			f = NULL;
 
 			return root;
 		}
@@ -120,9 +122,9 @@ char *getFirstName(bool sex) {
 	}
 
 	if (tmp != NULL) {
-		char *name = (char*)calloc(strlen(tmp->str) + 1, sizeof(char));
-		strcpy(name, tmp->str);
-		return name;
+		char *str = (char*)calloc(strlen(tmp->str), sizeof(char));
+		strcpy(str, tmp->str);
+		return str;
 	}
 	else {
 		return NULL;
@@ -149,114 +151,101 @@ StrList *getFirstNameWithUd(bool sex) {
 		j++;
 	}
 
-	StrList *res = (StrList*)calloc(1, sizeof(StrList));
-	if (tmp != NULL) {
-		res->str = (char*)calloc(strlen(tmp->str) + 1, sizeof(char));
-		strcpy(res->str, tmp->str);
-		res->ud = tmp->ud;
-	}
-
-	return res;
+	return tmp;
 }
 
 char *getMiddleName(bool sex) {
 	StrList *strL = getFirstNameWithUd(true);	//Запрашиваем имя с ударением;
-	char *tmp = strL->str;
+	size_t l = strlen(strL->str);
+	char *str = (char*)calloc(l + 1, sizeof(char));
+	strcat(str, strL->str);
 	bool ud = strL->ud;
-
-	strL->str = NULL;
-	free(strL);
-	strL = NULL;
-
-	size_t l = strlen(tmp);
 
 	if (l == 0) {
 		throw "Не удалось получить имя.";
 		return NULL;
 	}
 
-	char *middleName = NULL;
-
 	if (l > 1) {
-		switch (tmp[l - 1]) {
+		switch (str[l - 1]) {
 		case 'й':
 			if (ud) {
-				middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+				str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 			}
 			else {
-				if (tmp[l - 2] == 'и') {
+				if (str[l - 2] == 'и') {
 					if (l > 3) {
-						if ((tmp[l - 4] == 'а' || tmp[l - 4] == 'е' || tmp[l - 4] == 'ё' || tmp[l - 4] == 'и' || tmp[l - 4] == 'о' || tmp[l - 4] == 'у' || tmp[l - 4] == 'ы' || tmp[l - 4] == 'э' || tmp[l - 4] == 'ю' || tmp[l - 4] == 'я' ||
-							(tmp[l - 4] == 'н' && tmp[l - 3] == 'т')) &&
-							(tmp[l - 3] != 'к' || tmp[l - 3] != 'х' || tmp[l - 3] != 'ц')) {
+						if ((str[l - 4] == 'а' || str[l - 4] == 'е' || str[l - 4] == 'ё' || str[l - 4] == 'и' || str[l - 4] == 'о' || str[l - 4] == 'у' || str[l - 4] == 'ы' || str[l - 4] == 'э' || str[l - 4] == 'ю' || str[l - 4] == 'я' ||
+							(str[l - 4] == 'н' && str[l - 3] == 'т')) &&
+							(str[l - 3] != 'к' || str[l - 3] != 'х' || str[l - 3] != 'ц')) {
 
-							middleName = strcat(left(tmp, l - 2), sex ? "ьевич" : "ьевна");
+							str = strConcat(left(str, l - 2), sex ? "ьевич" : "ьевна");
 						}
 						else {
-							middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+							str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 						}
 					}
 					else if (l > 2) {
-						middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+						str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 					}
 					else {
-						middleName = strcat(tmp, sex ? "евич" : "евна");
+						str = strConcat(str, sex ? "евич" : "евна");
 					}
 				}
 				else {
-					middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+					str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 				}
 			}
 			break;
 
 		case 'ь':
-			middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+			str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 			break;
 
 		case 'б':case 'в':case 'г':case 'д':case 'з':case 'к':case 'л':case 'м':case 'н':case 'п':case 'р':case 'с':case 'т':case 'ф':case 'х':
-			middleName = strcat(tmp, sex ? "ович" : "овна");
+			str = strConcat(str, sex ? "ович" : "овна");
 			break;
 
 		case 'ж':case 'ш':case 'ц':case 'ч':case 'щ':
-			middleName = strcat(tmp, sex ? "ович" : "овна");
+			str = strConcat(str, sex ? "ович" : "овна");
 			break;
 
 		case 'а':case 'е':case 'ё':case 'и':case 'о':case 'у': case 'ы': case 'э': case 'ю': case 'я':
 			if (l > 1) {
-				if (tmp[l - 2] == 'а' && tmp[l - 1] == 'а' || tmp[l - 2] == 'а' && tmp[l - 1] == 'у' || tmp[l - 2] == 'е' && tmp[l - 1] == 'у' || tmp[l - 2] == 'э' && tmp[l - 1] == 'э' || tmp[l - 2] == 'у' && tmp[l - 1] == 'у') {
-					middleName = strcat(tmp, sex ? "евич" : "евна");
+				if (str[l - 2] == 'а' && str[l - 1] == 'а' || str[l - 2] == 'а' && str[l - 1] == 'у' || str[l - 2] == 'е' && str[l - 1] == 'у' || str[l - 2] == 'э' && str[l - 1] == 'э' || str[l - 2] == 'у' && str[l - 1] == 'у') {
+					str = strConcat(str, sex ? "евич" : "евна");
 				}
-				else if (tmp[l - 2] == 'е' && tmp[l - 1] == 'я' || tmp[l - 2] == 'и' && tmp[l - 1] == 'я') {
-					middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+				else if (str[l - 2] == 'е' && str[l - 1] == 'я' || str[l - 2] == 'и' && str[l - 1] == 'я') {
+					str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 				}
 				else if (ud) {
-					middleName = strcat(tmp, sex ? "евич" : "евна");
+					str = strConcat(str, sex ? "евич" : "евна");
 				}
 				else {
-					if (tmp[l - 2] == 'ж' || tmp[l - 2] == 'ш' || tmp[l - 2] == 'ч' || tmp[l - 2] == 'щ' || tmp[l - 2] == 'ц') {
-						middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+					if (str[l - 2] == 'ж' || str[l - 2] == 'ш' || str[l - 2] == 'ч' || str[l - 2] == 'щ' || str[l - 2] == 'ц') {
+						str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 					}
 					else {
-						switch (tmp[l - 1]) {
+						switch (str[l - 1]) {
 						case 'а':case 'у':case 'о':case 'ы':
-							if (strcmp("Аникита", tmp) == 0 || strcmp("Никита", tmp) == 0 || strcmp("Мина", tmp) == 0 || strcmp("Савва", tmp) == 0 || strcmp("Сила", tmp) == 0 || strcmp("Фока", tmp) == 0) {
-								middleName = strcat(left(tmp, l - 1), sex ? "ич" : "ична");
+							if (strcmp("Аникита", str) == 0 || strcmp("Никита", str) == 0 || strcmp("Мина", str) == 0 || strcmp("Савва", str) == 0 || strcmp("Сила", str) == 0 || strcmp("Фока", str) == 0) {
+								str = strConcat(left(str, l - 1), sex ? "ич" : "ична");
 							}
 							else {
-								middleName = strcat(left(tmp, l - 1), sex ? "ович" : "овна");
+								str = strConcat(left(str, l - 1), sex ? "ович" : "овна");
 							}
 							break;
 
 						case 'е':
-							middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+							str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 							break;
 
 						case 'и':
-							middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+							str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 							break;
 
 						default:
-							middleName = strcat(left(tmp, l - 1), sex ? "евич" : "евна");
+							str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
 							break;
 						}
 					}
@@ -264,13 +253,13 @@ char *getMiddleName(bool sex) {
 
 			}
 			else {
-				middleName = strcat(tmp, sex ? "евич" : "евна");
+				str = strConcat(str, sex ? "евич" : "евна");
 			}
 			break;
 		}
 	}
 
-	return middleName;
+	return str;
 }
 
 char *getLastName(bool sex) {
@@ -287,7 +276,7 @@ char *getLastName(bool sex) {
 
 	if (tmp != NULL) {
 		name = (char*)calloc(strlen(tmp->str) + 1, sizeof(char));	//Длина строки +1 символ терминатора
-		strcpy(name, tmp->str);
+		name = strcpy(name, tmp->str);
 
 		if (!sex) {
 			//Превращаем в женскую фамилию
@@ -296,14 +285,23 @@ char *getLastName(bool sex) {
 			char *_last4 = right(name, 4);
 
 			if (strcmp(_last2, "ов") == 0 || strcmp(_last2, "ев") == 0) {
-				name = strcat(name, "а");
+				name = strConcat(name, "а");
 			}
 			else if (strcmp(_last2, "ой") == 0) {
-				name = strcat(left(name, l - 2), "ая"); ; // (char*)calloc(l + 3, sizeof(char));
+				char *s = left(name, l - 2);
+				name = freeAndNULLStr(name);
+				name = s;
+				name = strConcat(name, "а");
 			}
 			else if (strcmp(_last4, "ский") == 0) {
-				name = strcat(left(name, l - 2), "ая"); ; // (char*)calloc(l + 1, sizeof(char));
+				char *s = left(name, l - 2);
+				name = freeAndNULLStr(name);
+				name = s;
+				name = strConcat(name, "ая");
 			}
+
+			_last2 = freeAndNULLStr(_last2);
+			_last4 = freeAndNULLStr(_last4);
 		}
 	}
 
@@ -317,40 +315,48 @@ void initGenerator() {
 	womanNamesCount = 0;
 	lastNamesCount = 0;
 
-	manNames = readStrListFromFile("C:\\Lexx\\DB\\manNames.txt", true);
+	manNames = readStrListFromFile("manNames.txt", true);
 	manNamesCount = getListLength(manNames);
-	womanNames = readStrListFromFile("C:\\Lexx\\DB\\womanNames.txt", false);
+	womanNames = readStrListFromFile("womanNames.txt", false);
 	womanNamesCount = getListLength(womanNames);
-	lastNames = readStrListFromFile("C:\\Lexx\\DB\\lastNames.txt", false);
+	lastNames = readStrListFromFile("lastNames.txt", false);
 	lastNamesCount = getListLength(lastNames);
 }
+
+/*void fillChar(char *word) {
+	if (word != NULL) {
+		for (size_t i = 0; i < strlen(word); i++) {
+			word[i] = '*';
+		}
+	}
+}*/
 
 void freeGenerator() {
 	while (manNames != NULL) {
 		StrList *tmp = manNames;
 		manNames = manNames->next;
-		free(tmp->str);
-		tmp->str = NULL;
+
+		tmp->str = freeAndNULLStr(tmp->str);
+		tmp->next = NULL;
 		free(tmp);
-		tmp = NULL;
 	}
 
 	while (womanNames != NULL) {
 		StrList *tmp = womanNames;
 		womanNames = womanNames->next;
-		free(tmp->str);
-		tmp->str = NULL;
+
+		tmp->str = freeAndNULLStr(tmp->str);
+		tmp->next = NULL;
 		free(tmp);
-		tmp = NULL;
 	}
 
 	while (lastNames != NULL) {
 		StrList *tmp = lastNames;
 		lastNames = lastNames->next;
-		free(tmp->str);
-		tmp->str = NULL;
+
+		tmp->str = freeAndNULLStr(tmp->str);
+		tmp->next = NULL;
 		free(tmp);
-		tmp = NULL;
 	}
 
 	manNamesCount = -1;
@@ -360,7 +366,9 @@ void freeGenerator() {
 
 Data *generateData() {
 	Data *data = (Data*)calloc(1, sizeof(Data));
+
 	data->sex = (rand() % 100) > 50;
+
 	data->firstName = getFirstName(data->sex);
 	data->middleName = getMiddleName(data->sex);
 	data->lastName = getLastName(data->sex);

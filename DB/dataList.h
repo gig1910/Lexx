@@ -14,19 +14,68 @@ DataList *createDataList(void *data) {
 	return d;
 }
 
-DataList *putInDataList(DataList *node, void *data) {
-	if (node != NULL) {
-		node->next = createDataList(data);
+DataList *copyDataList(DataList *dataList) {
+	DataList *copy = NULL;
+	DataList *root = NULL;
+	DataList *node = dataList;
+	while (node != NULL) {
+		if (copy == NULL) {
+			copy = (DataList*)calloc(1, sizeof(DataList));
+			root = copy;
+		}
+		else {
+			copy->next = (DataList*)calloc(1, sizeof(DataList));
+			copy = copy->next;
+		}
+		copy->data = node->data;
+
 		node = node->next;
 	}
-	return node;
+
+	return root;
+}
+
+DataList *putInDataList(DataList *root, void *data) {
+	if (root != NULL) {
+		DataList *last = root;
+		DataList *node = root;
+		while (node != NULL) {
+			last = node;
+			node = node->next;
+		}
+		last->next = createDataList(data);
+
+		return root;
+	}
+	else {
+		root = createDataList(data);
+	}
+
+	return root;
 }
 
 DataList *removeDataFromDataList(DataList *root, void *data) {
 	if (root != NULL) {
 		DataList *node = root;
 		DataList *prev = NULL;
+		DataList *tmp;
 		while (node != NULL) {
+			if (node->data == data) {
+				if (node == root) {
+					tmp = root;
+					root = node->next;
+					node = root;
+					prev = NULL;
+					
+					tmp->data = NULL;
+					free(tmp);
+				}
+				else {
+					prev->next = node->next;
+
+				}
+			}
+
 			if (node->data == data) {
 				if (prev != NULL) {
 					prev->next = node->next;
@@ -45,6 +94,10 @@ DataList *removeDataFromDataList(DataList *root, void *data) {
 					free(node);
 
 					node = root;
+				}
+				else {
+					prev = node;
+					node = node->next;
 				}
 			}
 			else {
@@ -92,22 +145,24 @@ DataList *unionDataList(DataList *dest, DataList *source) {
 		DataList *node = source;
 		while (node != NULL) {
 			if (findDataInDataList(dest, node->data) == NULL) {
-				putInDataList(dest, node->data);
-				node = node->next;
+				dest = putInDataList(dest, node->data);
 			}
+			node = node->next;
 		}
 	}
 
 	return dest;
 }
 
-DataList *removeDataListFromDataList(DataList *dest, DataList *source) {
-	if (dest != NULL && source != NULL) {
-		DataList *node = source;
+DataList *subtractionDataList(DataList *dest, DataList *source) {
+	if (dest != NULL) {
+		DataList *node = dest;
 		while (node != NULL) {
-			if (findDataInDataList(dest, node->data) != NULL) {
-				removeDataFromDataList(dest, node->data);
-				node = node->next;
+			void *d = node->data;
+			node = node->next;
+
+			if (findDataInDataList(source, d) != NULL) {
+				dest = removeDataFromDataList(dest, d);
 			}
 		}
 	}
@@ -116,12 +171,19 @@ DataList *removeDataListFromDataList(DataList *dest, DataList *source) {
 }
 
 DataList *mergeDataList(DataList *dest, DataList *source) {
-	if (dest != NULL && source != NULL) {
-		DataList *node = source;
-		while (node != NULL) {
-			if (findDataInDataList(dest, node->data) == NULL) {
-				removeDataFromDataList(dest, node->data);
+	if (dest != NULL) {
+		if (source == NULL) {
+			return NULL;
+		}
+		else {
+			DataList *node = dest;
+			while (node != NULL) {
+				void *d = node->data;
 				node = node->next;
+
+				if (findDataInDataList(source, d) == NULL) {
+					dest = removeDataFromDataList(dest, d);
+				}
 			}
 		}
 	}

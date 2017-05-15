@@ -97,7 +97,7 @@ DataList *findInStrTree(StrTreeNode *root, char *word) {
 			}
 		}
 
-		return node->data;
+		return copyDataList(node->data);
 	}
 	else {
 		return NULL;

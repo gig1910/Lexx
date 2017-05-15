@@ -17,21 +17,24 @@ int main()
 
 	initGenerator();
 
-	char str[255];
+	char *str = (char*)calloc(255, sizeof(char));
 	int count;
 	printf("Введите кол-во генерируемых записей или имя файла: ");
 	scanf("%s", str);
 
-	char* end_ptr;
+	char *end_ptr = NULL;
 	count = strtol(str, &end_ptr, 10);
 
 	DataList *dataList;
-	if (*end_ptr) {
+	if (*end_ptr != NULL) {
+		if (strcmp(str, "-") == 0) {
+			str = strcpy(str, "D:\\Lexx\\001.txt");
+		}
 		dataList = loadDataFromFile(str);
 	}
 	else {
 		dataList = generateDataList(count);
-		printf("Созранить сгененированный набор? [y, n] ");
+		printf("Сохранить сгененированный набор? [y, n] ");
 		scanf("%s", str);
 		if (str[0] == 'y') {
 			printf("Введите имя файла: ");
@@ -50,13 +53,102 @@ int main()
 	}
 	clearDataList(dataList, false);
 
-	Data *query = (Data*)calloc(1, sizeof(Data));
-	query->firstName = "Алексей";
-	printDataList(queryData(query));
-	printf("--------------------------------------\n");
-	scanf("%s", end_ptr);
+	str = strcpy(str, "repeat");
+	int i = 0;
+	while (i < 5) {	//strcmp(str, "exit") != 0
+
+		QueryList *queryList = (QueryList*)calloc(1, sizeof(QueryList));
+		QueryList *ql = queryList;
+		switch (i) {
+		case 0:
+			printf("\n--------------------------------------\nfirstName=\"Алексей\"\n");
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "firstName";
+			ql->query->query = "Алексей";
+			ql->query->condition = 0;
+
+			break;
+
+		case 1:
+			printf("\n--------------------------------------\nlastName=\"Куликов\"\n");
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "lastName";
+			ql->query->query = "Куликов";
+			ql->condition = 1;
+			break;
+
+		case 2:
+			printf("\n--------------------------------------\nfirstName=\"Алексей\" OR lastName=\"Куликов\"\n");
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "firstName";
+			ql->query->query = "Алексей";
+			ql->query->condition = 0;
+
+			ql->next = (QueryList*)calloc(1, sizeof(QueryList));
+			ql = ql->next;
+
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "lastName";
+			ql->query->query = "Куликов";
+			ql->condition = 1;
+			break;
+
+		case 3:
+			printf("\n--------------------------------------\nfirstName=\"Алексей\" AND lastName=\"Куликов\"\n");
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "firstName";
+			ql->query->query = "Алексей";
+			ql->query->condition = 0;
+
+			ql->next = (QueryList*)calloc(1, sizeof(QueryList));
+			ql = ql->next;
+
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "lastName";
+			ql->query->query = "Куликов";
+			ql->condition = 0;
+			break;
+
+		case 4:
+			printf("\n--------------------------------------\nfirstName=\"Алексей\" OR lastName=\"Куликов\" NOT middleName=\"Бориславович\"\n");
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "firstName";
+			ql->query->query = "Алексей";
+			ql->query->condition = 0;
+
+			ql->next = (QueryList*)calloc(1, sizeof(QueryList));
+			ql = ql->next;
+
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "lastName";
+			ql->query->query = "Куликов";
+			ql->condition = 1;
+
+			ql->next = (QueryList*)calloc(1, sizeof(QueryList));
+			ql = ql->next;
+
+			ql->query = (Query*)calloc(1, sizeof(Query));
+			ql->query->field = "middleName";
+			ql->query->query = "Бориславович";
+			ql->condition = 2;
+			break;
+		}
+
+		DataList *res = query(queryList);
+		printDataList(res);
+		printf("--------------------------------------\n");
+
+		clearDataList(res, NULL);
+		clearQueryList(queryList);
+
+		i++;
+		//		scanf("%s", str);
+	}
 
 	clearDB();
+
+	scanf("%s", str);
+	free(str);
 
 	return 0;
 }

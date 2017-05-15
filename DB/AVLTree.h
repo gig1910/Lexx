@@ -97,6 +97,15 @@ AVLTreeNode *find(AVLTreeNode *p, int k) {
 	return p;
 }
 
+DataList *findDataList(AVLTreeNode *p, int k) {
+	AVLTreeNode *node = p;
+	while (p != NULL && p->key != k) {
+		p = p->key < k ? p->left : p->right;
+	}
+
+	return p != NULL ? copyDataList(p->data) : NULL;
+}
+
 AVLTreeNode *insertDataToAVLTree(AVLTreeNode *root, int k, void *data) {
 	AVLTreeNode *p = find(root, k);
 	if (p == NULL) {

@@ -38,6 +38,9 @@ DataList* dataList_Free(DataList **dataList, DataFreeFunc func) {
 		(*dataList)->data = NULL;
 		next = (*dataList)->next;
 		(*dataList)->next = NULL;
+
+		free(*dataList);
+		*dataList = NULL;
 	}
 
 	return next;
@@ -53,6 +56,9 @@ DataList* dataList_Free(DataList **dataList) {
 		(*dataList)->data = NULL;
 		next = (*dataList)->next;
 		(*dataList)->next = NULL;
+
+		free(*dataList);
+		*dataList = NULL;
 	}
 
 	return next;

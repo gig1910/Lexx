@@ -14,9 +14,25 @@
 #include "debug.h"
 
 
+void _freeTempData(void **data) {
+	if (data && *data) {
+		free(*data);
+		*data = NULL;
+	}
+}
+
 int main()
 {
 	setlocale(LC_CTYPE, "rus");
+
+	DataList *list = NULL;
+	for (int i = 0; i < 10; i++) {
+		char *data = (char*)calloc(10, sizeof(char));
+		strcpy(data, "123456789");
+		dataList_Put(&list, data);
+	}
+
+	dataList_ListFree(&list, _freeTempData);
 
 	initGenerator();
 

@@ -40,6 +40,8 @@ void strTree_Free(StrTreeNode **node) {
 			(*node)->childs = dataList_Free(&child, NULL);
 		}
 		(*node)->letter = 0;
+		
+		dataList_ListFree(&(*node)->data);
 		(*node)->data = NULL;
 		(*node)->last = NULL;
 		(*node)->parent = NULL;

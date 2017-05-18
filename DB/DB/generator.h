@@ -21,33 +21,42 @@ int manNamesCount = 0;
 int womanNamesCount = 0;
 int lastNamesCount = 0;
 
-char *strConcat(char *dest, const char *source) {
-	dest = (char*)realloc(dest, (strlen(dest) + strlen(source) + 1) * sizeof(char));
-	return strcat(dest, source);
+char *strConcat(char **dest, const char *source) {
+	if (dest) {
+		*dest = (char*)realloc(*dest, (strlen(*dest) + strlen(source) + 1) * sizeof(char));
+		return strcat(*dest, source);
+	}
+	return NULL;
 }
 
-char *left(char *word, size_t i) {
-	size_t j = strlen(word);
-	j = i < j ? i : j;
-	char *res = NULL;
-	if (j > 0) {
-		res = (char*)calloc(j + 1, sizeof(char));
-		strncpy(res, word, j);
+char *left(char **word, size_t i) {
+	if (word && *word) {
+		size_t j = strlen(*word);
+		j = i < j ? i : j;
+		if (j > 0) {
+			*word = (char*)realloc(*word, j + 1);
+			(*word)[j] = '\0';
+		}
 	}
 
-	return res;
+	return *word;
 }
 
-char *right(char *word, size_t i) {
-	size_t j = strlen(word);
-	size_t k = i < j ? j - i : 0;
-	char *res = NULL;
-	if (j > 0) {
-		res = (char*)calloc(j - k + 1, sizeof(char));
-		strcpy(res, &word[k]);
+char *right(char **word, size_t i) {
+	if (word && *word) {
+		size_t j = strlen(*word);
+		size_t k = i < j ? j - i : 0;
+		if (j > 0) {
+			char *tmpstr = (char*)calloc(j + 1, sizeof(char));
+			strncpy(tmpstr, &(*word)[k], j - k);
+			*word = (char*)realloc(*word, j - k + 1);
+			strcpy(*word, tmpstr);
+			free(tmpstr);
+			tmpstr = NULL;
+		}
 	}
 
-	return res;
+	return *word;
 }
 
 char *getFirstName(bool sex) {
@@ -131,10 +140,12 @@ char *getMiddleName(bool sex) {
 	}
 
 	if (l > 1) {
+		char *_left = NULL;
 		switch (str[l - 1]) {
 		case 'й':
 			if (ud) {
-				str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+				left(&str, l - 1);
+				str = strConcat(&str, sex ? "евич" : "евна");
 			}
 			else {
 				if (str[l - 2] == 'и') {
@@ -143,73 +154,85 @@ char *getMiddleName(bool sex) {
 							(str[l - 4] == 'н' && str[l - 3] == 'т')) &&
 							(str[l - 3] != 'к' || str[l - 3] != 'х' || str[l - 3] != 'ц')) {
 
-							str = strConcat(left(str, l - 2), sex ? "ьевич" : "ьевна");
+							left(&str, l - 2);
+							str = strConcat(&str, sex ? "ьевич" : "ьевна");
 						}
 						else {
-							str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+							left(&str, l - 1);
+							str = strConcat(&str, sex ? "евич" : "евна");
 						}
 					}
 					else if (l > 2) {
-						str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+						left(&str, l - 1);
+						str = strConcat(&str, sex ? "евич" : "евна");
 					}
 					else {
-						str = strConcat(str, sex ? "евич" : "евна");
+						str = strConcat(&str, sex ? "евич" : "евна");
 					}
 				}
 				else {
-					str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+					left(&str, l - 1);
+					str = strConcat(&str, sex ? "евич" : "евна");
 				}
 			}
 			break;
 
 		case 'ь':
-			str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+			left(&str, l - 1);
+			str = strConcat(&str, sex ? "евич" : "евна");
 			break;
 
 		case 'б':case 'в':case 'г':case 'д':case 'з':case 'к':case 'л':case 'м':case 'н':case 'п':case 'р':case 'с':case 'т':case 'ф':case 'х':
-			str = strConcat(str, sex ? "ович" : "овна");
+			str = strConcat(&str, sex ? "ович" : "овна");
 			break;
 
 		case 'ж':case 'ш':case 'ц':case 'ч':case 'щ':
-			str = strConcat(str, sex ? "ович" : "овна");
+			str = strConcat(&str, sex ? "ович" : "овна");
 			break;
 
 		case 'а':case 'е':case 'ё':case 'и':case 'о':case 'у': case 'ы': case 'э': case 'ю': case 'я':
 			if (l > 1) {
 				if (str[l - 2] == 'а' && str[l - 1] == 'а' || str[l - 2] == 'а' && str[l - 1] == 'у' || str[l - 2] == 'е' && str[l - 1] == 'у' || str[l - 2] == 'э' && str[l - 1] == 'э' || str[l - 2] == 'у' && str[l - 1] == 'у') {
-					str = strConcat(str, sex ? "евич" : "евна");
+					str = strConcat(&str, sex ? "евич" : "евна");
 				}
 				else if (str[l - 2] == 'е' && str[l - 1] == 'я' || str[l - 2] == 'и' && str[l - 1] == 'я') {
-					str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+					left(&str, l - 1);
+					str = strConcat(&str, sex ? "евич" : "евна");
 				}
 				else if (ud) {
-					str = strConcat(str, sex ? "евич" : "евна");
+					str = strConcat(&str, sex ? "евич" : "евна");
 				}
 				else {
 					if (str[l - 2] == 'ж' || str[l - 2] == 'ш' || str[l - 2] == 'ч' || str[l - 2] == 'щ' || str[l - 2] == 'ц') {
-						str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+						left(&str, l - 1);
+						str = strConcat(&str, sex ? "евич" : "евна");
 					}
 					else {
 						switch (str[l - 1]) {
 						case 'а':case 'у':case 'о':case 'ы':
 							if (strcmp("Аникита", str) == 0 || strcmp("Никита", str) == 0 || strcmp("Мина", str) == 0 || strcmp("Савва", str) == 0 || strcmp("Сила", str) == 0 || strcmp("Фока", str) == 0) {
-								str = strConcat(left(str, l - 1), sex ? "ич" : "ична");
+								left(&str, l - 1);
+								str = strConcat(&str, sex ? "ич" : "ична");
 							}
 							else {
-								str = strConcat(left(str, l - 1), sex ? "ович" : "овна");
+								left(&str, l - 1);
+								str = strConcat(&str, sex ? "ович" : "овна");
 							}
 							break;
 
 						case 'е':
-							str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+							left(&str, l - 1);
+							str = strConcat(&str, sex ? "евич" : "евна");
 							break;
 
 						case 'и':
-							str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+							left(&str, l - 1);
+							str = strConcat(&str, sex ? "евич" : "евна");
 							break;
 
 						default:
-							str = strConcat(left(str, l - 1), sex ? "евич" : "евна");
+							left(&str, l - 1);
+							str = strConcat(&str, sex ? "евич" : "евна");
 							break;
 						}
 					}
@@ -217,7 +240,7 @@ char *getMiddleName(bool sex) {
 
 			}
 			else {
-				str = strConcat(str, sex ? "евич" : "евна");
+				str = strConcat(&str, sex ? "евич" : "евна");
 			}
 			break;
 		}
@@ -249,23 +272,24 @@ char *getLastName(bool sex) {
 		if (!sex) {
 			//Превращаем в женскую фамилию
 			size_t l = strlen(name);
-			char *_last2 = right(name, 2);
-			char *_last4 = right(name, 4);
+			char *_last2 = (char*)calloc(l + 1, sizeof(char));
+			strcpy(_last2, name);
+			right(&_last2, 2);
+
+			char *_last4 = (char*)calloc(l + 1, sizeof(char));
+			strcpy(_last4, name);
+			right(&_last4, 4);
 
 			if (strcmp(_last2, "ов") == 0 || strcmp(_last2, "ев") == 0) {
-				name = strConcat(name, "а");
+				name = strConcat(&name, "а");
 			}
 			else if (strcmp(_last2, "ой") == 0) {
-				char *s = left(name, l - 2);
-				free(name);
-				name = s;
-				name = strConcat(name, "а");
+				left(&name, l - 2);
+				name = strConcat(&name, "а");
 			}
 			else if (strcmp(_last4, "ский") == 0) {
-				char *s = left(name, l - 2);
-				free(name);
-				name = s;
-				name = strConcat(name, "ая");
+				left(&name, l - 2);
+				name = strConcat(&name, "ая");
 			}
 
 			free(_last2);

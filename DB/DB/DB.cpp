@@ -13,51 +13,10 @@
 
 #include "debug.h"
 
-void _freeTempData(void **data) {
-	if (data && *data) {
-		free(*data);
-		*data = NULL;
-	}
-}
-
-void _prindTempData(void *data) {
-	if (!_debug) return;
-
-	if (data != NULL) {
-		Data *d = (Data*)data;
-		debug_Print("%d\n", *(unsigned char*)data);
-	}
-}
-
 int main()
 {
 
 	setlocale(LC_CTYPE, "rus");
-
-	debug_ON();
-
-	DataList *list = NULL;
-	for (int i = 0; i < 10; i++) {
-		unsigned char *data = (unsigned char*)calloc(1, sizeof(unsigned char));
-		*data = rand() % 255;
-		dataList_Put(&list, data);
-	}
-	debug_dataListPrint(list, _prindTempData);
-
-	AVLTreeNode *avlTreeRoot = NULL;
-	DataList *node = list;
-	while (node) {
-		avlTreeRoot = AVLTree_Put(avlTreeRoot, *(unsigned char*)node->data, node->data);
-		debug_Print("-------------------------\n");
-		debug_AVLTreePrint(avlTreeRoot, 0);
-
-		node = node->next;
-	}
-
-	AVLTree_Free(&avlTreeRoot);
-	dataList_ListFree(&list, _freeTempData);
-
-	//**************************************************
 
 	initGenerator();
 

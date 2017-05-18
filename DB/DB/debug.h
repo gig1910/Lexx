@@ -6,9 +6,11 @@
 
 #include "dataList.h"
 #include "strTree.h"
+#include "AVLTree.h"
 #include "types.h"
 
 bool _debug = false;
+
 void debug_ON() {
 	_debug = true;
 }
@@ -74,7 +76,7 @@ void debug_dataListPrint(DataList *root, DataPrintFunc func) {
 	}
 }
 
-void strTree_DebugPrint(StrTreeNode *root, int lev) {
+void debug_StrTreePrint(StrTreeNode *root, int lev) {
 	if (!_debug) return;
 
 	if (root) {
@@ -84,8 +86,36 @@ void strTree_DebugPrint(StrTreeNode *root, int lev) {
 		debug_Print("\"%c\", dataCount: %d\n", (char)root->letter, dataList_Length(root->data));
 		DataList *child = root->childs;
 		while (child) {
-			strTree_DebugPrint((StrTreeNode*)child->data, lev + 1);
+			debug_StrTreePrint((StrTreeNode*)child->data, lev + 1);
 			child = child->next;
+		}
+	}
+}
+
+void debug_AVLTreePrint(AVLTreeNode *root, int lev) {
+	if (!_debug) return;
+
+	if (root) {
+		for (int i = 0; i < lev; i++) {
+			debug_Print("\t");
+		}
+		debug_Print("key: %d, dataCount: %d\n", root->key, dataList_Length(root->data));
+
+		if (root->left) {
+			for (int i = 0; i < lev; i++) {
+				debug_Print("\t");
+			}
+			debug_Print("<");
+			debug_AVLTreePrint(root->left, lev + 1);
+		}
+
+		if (root->right) {
+			for (int i = 0; i < lev; i++) {
+				debug_Print("\t");
+			}
+
+			debug_Print(">");
+			debug_AVLTreePrint(root->right, lev + 1);
 		}
 	}
 }

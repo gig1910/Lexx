@@ -31,18 +31,18 @@ void db_Put(void *data) {
 
 	strTree_Put(&firstNameRoot, ((Data*)data)->firstName, data);
 	debug_Print("Дерево имён:\n");
-	strTree_DebugPrint(firstNameRoot, 0);
+	debug_StrTreePrint(firstNameRoot, 0);
 
 	strTree_Put(&middleNameRoot, ((Data*)data)->middleName, data);
 	debug_Print("Дерево отчеств:\n");
-	strTree_DebugPrint(middleNameRoot, 0);
+	debug_StrTreePrint(middleNameRoot, 0);
 
 	strTree_Put(&lastNameRoot, ((Data*)data)->lastName, data);
 	debug_Print("Дерево фамилий:\n");
-	strTree_DebugPrint(lastNameRoot, 0);
+	debug_StrTreePrint(lastNameRoot, 0);
 
-	//ageRoot = insertDataToAVLTree(ageRoot, ((Data*)data)->age, data);
-	//weightRoot = insertDataToAVLTree(weightRoot, ((Data*)data)->weight, data);
+	ageRoot = AVLTree_Put(ageRoot, ((Data*)data)->age, data);
+	weightRoot = AVLTree_Put(weightRoot, ((Data*)data)->weight, data);
 }
 
 void db_Remove(void *data) {
@@ -51,8 +51,8 @@ void db_Remove(void *data) {
 	strTree_Remove(&firstNameRoot, ((Data*)data)->firstName, data);
 	strTree_Remove(&middleNameRoot, ((Data*)data)->middleName, data);
 	strTree_Remove(&lastNameRoot, ((Data*)data)->lastName, data);
-	//ageRoot = removeDataToAVLTree(ageRoot, ((Data*)data)->age, data);
-	//weightRoot = removeDataToAVLTree(weightRoot, ((Data*)data)->weight, data);
+	ageRoot = AVLTree_Remove(ageRoot, ((Data*)data)->age, data);
+	weightRoot = AVLTree_Remove(weightRoot, ((Data*)data)->weight, data);
 }
 
 DataList *db_Find(void *data) {
@@ -97,8 +97,8 @@ void db_Free() {
 	strTree_Free(&middleNameRoot); middleNameRoot = NULL;
 	strTree_Free(&lastNameRoot); lastNameRoot = NULL;
 
-	//freeAVLTreeNode(ageRoot); ageRoot = NULL;
-	//freeAVLTreeNode(weightRoot); weightRoot = NULL;
+	AVLTree_Free(&ageRoot); ageRoot = NULL;
+	AVLTree_Free(&weightRoot); weightRoot = NULL;
 
 	dataList_ListFree(&dbListRoot, _db_FreeFunc);
 }

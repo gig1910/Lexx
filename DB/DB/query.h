@@ -56,10 +56,10 @@ DataList *query_query(Query *query, DataList *res) {
 			return res;
 		}
 		else if (strcmp(query->field, "age") == 0) {
-			return findDataList(ageRoot, *(int*)query->query);
+			return AVLTree_FindData(ageRoot, *(int*)query->query);
 		}
 		else if (strcmp(query->field, "weight") == 0) {
-			return findDataList(weightRoot, *(int*)query->query);
+			return AVLTree_FindData(weightRoot, *(int*)query->query);
 		}
 		else if (strcmp(query->field, "group") == 0) {
 			DataList *_node = res;

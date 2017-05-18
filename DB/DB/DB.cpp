@@ -13,7 +13,6 @@
 
 #include "debug.h"
 
-
 void _freeTempData(void **data) {
 	if (data && *data) {
 		free(*data);
@@ -21,28 +20,45 @@ void _freeTempData(void **data) {
 	}
 }
 
+void _prindTempData(void *data) {
+	if (!_debug) return;
+
+	if (data != NULL) {
+		Data *d = (Data*)data;
+		debug_Print("%d\n", *(unsigned char*)data);
+	}
+}
+
 int main()
 {
+
 	setlocale(LC_CTYPE, "rus");
 
-	/*	DataList *list = NULL;
-		for (int i = 0; i < 10; i++) {
-			char *data = (char*)calloc(10, sizeof(char));
-			strcpy(data, "123456789");
-			dataList_Put(&list, data);
-		}
+	debug_ON();
 
-		StrTreeNode *strTreeRoot = NULL;
-		DataList *node = list;
-		while (node) {
-			strTree_Put(&strTreeRoot, (char*)node->data, node->data);
-			node = node->next;
-		}
+	DataList *list = NULL;
+	for (int i = 0; i < 10; i++) {
+		unsigned char *data = (unsigned char*)calloc(1, sizeof(unsigned char));
+		*data = rand() % 255;
+		dataList_Put(&list, data);
+	}
+	debug_dataListPrint(list, _prindTempData);
 
-		strTree_Free(&strTreeRoot);
+	AVLTreeNode *avlTreeRoot = NULL;
+	DataList *node = list;
+	while (node) {
+		avlTreeRoot = AVLTree_Put(avlTreeRoot, *(unsigned char*)node->data, node->data);
+		debug_Print("-------------------------\n");
+		debug_AVLTreePrint(avlTreeRoot, 0);
 
-		dataList_ListFree(&list, _freeTempData);
-	*/
+		node = node->next;
+	}
+
+	AVLTree_Free(&avlTreeRoot);
+	dataList_ListFree(&list, _freeTempData);
+
+	//**************************************************
+
 	initGenerator();
 
 	char *str = (char*)calloc(255, sizeof(char));

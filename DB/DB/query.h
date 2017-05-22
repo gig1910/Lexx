@@ -140,7 +140,7 @@ DataList *strQuery(char *query) {
 		for (size_t i = 0; i < _len; i++) {
 			bool bSpace = false;	//Флаг пробела
 			bool bQuotes = false;	//Флаг кавычки
-			bool bEsc = false;		//Флаг символа escape-последовательности
+			bool bEsc = false;		//Флаг символа escape-последовательности 
 
 			size_t _stInd = 0;
 

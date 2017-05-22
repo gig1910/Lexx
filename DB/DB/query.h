@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "dataList.h"
+#include "stack.h"
 #include "strTree.h"
 #include "AVLTree.h"
 #include "db.h"
@@ -129,5 +130,50 @@ void query_ListFree(DataList **queryList) {
 }
 
 DataList *strQuery(char *query) {
+	if (query) {
+		DataList *literals = NULL;
+
+		//Первоначально проходимся по строке и делим её по разделителям на литералы (разделитель, это пробел, перенос строки и табиляция).
+		//Обрабатываем с учетом кавычек (внутри кавычек пробел сохранятся)
+		//Отдельно выделяются скобки
+		size_t _len = strlen(query);
+		for (size_t i = 0; i < _len; i++) {
+			bool bSpace = false;	//Флаг пробела
+			bool bQuotes = false;	//Флаг кавычки
+			bool bEsc = false;		//Флаг символа escape-последовательности
+
+			size_t _stInd = 0;
+
+			switch (query[i]) {
+			case 8: case 10: case 13: case 32:	//Табуляция, возврат картеки, перевод строки, пробел
+				if (bQuotes) {	//Если была кавычка, то заносим в значение все пробелы как есть.
+
+				}
+				else {
+					bSpace = true;
+					_stInd = i;
+				}
+				break;
+
+			case 34:			//Кавычка
+				if (bQuotes && !bEsc) {	//Если закрывающая кавычка, то копируем строку без кавычек
+					char *str = (char*)calloc(i - _stInd + 1, sizeof(char));
+					strncpy(str, &query[_stInd], i - _stInd);
+					dataList_Put(&literals, str);
+				}
+				else {
+					bEsc = false;
+					_stInd = i;
+				}
+				else {
+					bQuotes = true;
+				}
+				break;
+			case 40: case 41:
+				dataList_Put()
+					break;
+			}
+		}
+	}
 	return NULL;
 }

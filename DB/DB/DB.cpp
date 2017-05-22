@@ -15,7 +15,6 @@
 
 int main()
 {
-
 	setlocale(LC_CTYPE, "rus");
 
 	initGenerator();
@@ -47,58 +46,72 @@ int main()
 	}
 	freeGenerator();
 
-	free(str);
-	str = NULL;
 	end_ptr = NULL;
 
 	db_Init();
 	db_FillData(dataList);
 	dataList_ListFree(&dataList);
 
-	int i = 0;
-	while (i < 5) {	//strcmp(str, "exit") != 0
+	printf("Введите запрос (для выхода наберите exit, для выполнения запроса go):");
+	free(str);
+	scanf("%s", str);
 
-		DataList *ql = NULL;
-		switch (i) {
-		case 0:
-			printf("\n--------------------------------------\nfirstName=\"Алексей\"\n");
-			query_Put(&ql, query_Create("firstName", "Алексей", 0, 0));
-
-			break;
-
-		case 1:
-			printf("\n--------------------------------------\nlastName=\"Куликов\"\n");
-			query_Put(&ql, query_Create("lastName", "Куликов", 0, 0));
-			break;
-
-		case 2:
-			printf("\n--------------------------------------\nfirstName=\"Алексей\" OR lastName=\"Куликов\"\n");
-			query_Put(&ql, query_Create("firstName", "Алексей", 0, 0));
-			query_Put(&ql, query_Create("lastName", "Куликов", 0, 1));
-			break;
-
-		case 3:
-			printf("\n--------------------------------------\nfirstName=\"Алексей\" AND lastName=\"Куликов\"\n");
-			query_Put(&ql, query_Create("firstName", "Алексей", 0, 0));
-			query_Put(&ql, query_Create("lastName", "Куликов", 0, 0));
-			break;
-
-		case 4:
-			printf("\n--------------------------------------\nfirstName=\"Алексей\" OR lastName=\"Куликов\" NOT middleName=\"Бориславович\"\n");
-			query_Put(&ql, query_Create("firstName", "Алексей", 0, 0));
-			query_Put(&ql, query_Create("lastName", "Куликов", 0, 1));
-			query_Put(&ql, query_Create("middleName", "Бориславович", 0, 2));
-			break;
+	char *queryStr = NULL;
+	while (strcmp(str, "exit") != 0) {
+		if (strcmp(str, "go") == 0) {
+			printf("Выполнение запроса:\n%s\n", queryStr);
+		}
+		else {
+			queryStr = (char*)realloc(queryStr, (strlen(queryStr) + strlen(str) + 1) * sizeof(char));
+			strcpy(&queryStr[strlen(queryStr)], str);
+			free(queryStr);
 		}
 
-		DataList *res = query_Query(ql);
-		db_PrintList(res);
-		printf("--------------------------------------\n");
+		scanf("%s", str);
 
-		dataList_ListFree(&res);
-		query_ListFree(&ql);
+		/*
+				DataList *ql = NULL;
+				switch (i) {
+				case 0:
+					printf("\n--------------------------------------\nfirstName=\"Алексей\"\n");
+					query_Put(&ql, query_Create("firstName", "Алексей", 0, 0));
 
-		i++;
+					break;
+
+				case 1:
+					printf("\n--------------------------------------\nlastName=\"Куликов\"\n");
+					query_Put(&ql, query_Create("lastName", "Куликов", 0, 0));
+					break;
+
+				case 2:
+					printf("\n--------------------------------------\nfirstName=\"Алексей\" OR lastName=\"Куликов\"\n");
+					query_Put(&ql, query_Create("firstName", "Алексей", 0, 0));
+					query_Put(&ql, query_Create("lastName", "Куликов", 0, 1));
+					break;
+
+				case 3:
+					printf("\n--------------------------------------\nfirstName=\"Алексей\" AND lastName=\"Куликов\"\n");
+					query_Put(&ql, query_Create("firstName", "Алексей", 0, 0));
+					query_Put(&ql, query_Create("lastName", "Куликов", 0, 0));
+					break;
+
+				case 4:
+					printf("\n--------------------------------------\nfirstName=\"Алексей\" OR lastName=\"Куликов\" NOT middleName=\"Бориславович\"\n");
+					query_Put(&ql, query_Create("firstName", "Алексей", 0, 0));
+					query_Put(&ql, query_Create("lastName", "Куликов", 0, 1));
+					query_Put(&ql, query_Create("middleName", "Бориславович", 0, 2));
+					break;
+				}
+
+				DataList *res = query_Query(ql);
+				db_PrintList(res);
+				printf("--------------------------------------\n");
+
+				dataList_ListFree(&res);
+				query_ListFree(&ql);
+
+				i++;
+				*/
 	}
 
 	db_Free();

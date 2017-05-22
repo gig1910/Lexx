@@ -143,6 +143,7 @@
     <ClInclude Include="AVLTree.h" />
     <ClInclude Include="generator.h" />
     <ClInclude Include="debug.h" />
+    <ClInclude Include="stack.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="query.h" />
     <ClInclude Include="strTree.h" />
@@ -151,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DB.cpp" />
+    <ClCompile Include="Lexx.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
